@@ -164,6 +164,36 @@ async function addEmployee() {
     }
 }
 
+async function updateRole() {
+    try {
+        const [employees] = await connection.query('SELECT * FROM employees');
+        const employeeAnswer = await inquirer.prompt({
+            name: 'selectedEmployee',
+            type: 'list',
+            message: "Which employee's role would you like to be updated?",
+            choices: employees.map(employee => ({
+                name: `${employee.first_name} ${employee.last_name}`,
+                value: employee.id
+            }))
+        });
 
+        const [roles] = await connection.query('SELECT * FROM roles');
+        const roleAnswer = await inquirer.prompt({
+            name: 'newRole',
+            type: 'list',
+            message: 'What is the new role of the employee?',
+            choices: roles.map(role => ({
+                name: role.title,
+                value: role.id
+            }))
+        });
+
+        await connection.query('UPDATE employees SET role_id = ? WHERE id = ?', [roleAnswer.newRole, employeeAnswer.selectedEmployee]);
+        console.log('Employee Role updated!');
+        await employees();
+    } catch (err) {
+        console.error(err);
+    }
+}
 
 main().catch(err => console.error(err));
