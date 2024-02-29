@@ -93,6 +93,42 @@ async function addDepartment() {
     }
 }
 
+async function addRole() {
+    try {
+        const [departments] = await connection.query('SELECT * FROM departments');
+        const answers = await inquirer.prompt([
+            {
+                name: 'title',
+                type: 'input',
+                message: 'What is the name of the role?'
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'What is the salary of the role?',
+                validate: value => !isNaN(value)
+            },
+            {
+                name: 'departmentId',
+                type: 'list',
+                choices: departments.map(department => ({ name: department.name, value: department.id })),
+                message: 'Which department does this role belong to?'
+            }
+        ]);
+
+        await connection.query('INSERT INTO roles SET ?', {
+            title: answers.title,
+            salary: answers.salary,
+            department_id: answers.departmentId
+        });
+
+        console.log('Role added successfully');
+        await employees();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 
 
 main().catch(err => console.error(err));
