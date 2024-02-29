@@ -129,6 +129,41 @@ async function addRole() {
     }
 }
 
+async function addEmployee() {
+    try {
+        const [roles] = await connection.query('SELECT * FROM roles');
+        const answers = await inquirer.prompt([
+            {
+                name: 'firstName',
+                type: 'input',
+                message: 'What is the First name of the employee?'
+            },
+            {
+                name: 'lastName',
+                type: 'input',
+                message: 'What is the Last name of the employee?'
+            },
+            {
+                name: 'roleId',
+                type: 'list',
+                choices: roles.map(role => ({ name: role.title, value: role.id })),
+                message: 'What is the role of the employee?'
+            },
+        ]);
+
+        await connection.query('INSERT INTO employees SET ?', {
+            first_name: answers.firstName,
+            last_name: answers.lastName,
+            role_id: answers.roleId,
+        });
+
+        console.log('Employee added!');
+        await employees();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 
 
 main().catch(err => console.error(err));
