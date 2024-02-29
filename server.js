@@ -77,6 +77,22 @@ async function viewDepartments(connection) {
     console.table(rows);
 }
 
+async function addDepartment() {
+    try {
+        const { departmentName } = await inquirer.prompt({
+            name: 'departmentName',
+            type: 'input',
+            message: 'What is the name of the department?'
+        });
+
+        await connection.query('INSERT INTO departments SET ?', { name: departmentName });
+        console.log('Department added!');
+        await employees();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 
 
 main().catch(err => console.error(err));
